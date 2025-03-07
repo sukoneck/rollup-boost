@@ -1,46 +1,38 @@
 #!/bin/bash
 set -e
 
-# Set up directories and PATH
 mkdir -p $HOME/bin
 export PATH=$HOME/bin:$PATH
 REPO_ROOT=$(pwd)
 
-# Install mdbook
 echo "Installing mdbook..."
 curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.14/mdbook-v0.4.14-x86_64-unknown-linux-gnu.tar.gz | tar -xz
 chmod +x ./mdbook
 cp ./mdbook $HOME/bin/
 
-# Install mdbook-template
 echo "Installing mdbook-template..."
 curl -sSL https://github.com/sgoudham/mdbook-template/releases/latest/download/mdbook-template-x86_64-unknown-linux-gnu.tar.gz | tar -xz
 chmod +x ./mdbook-template
 cp ./mdbook-template $HOME/bin/
 
-# Install Rust without trying to configure Mold
 echo "Installing Rust..."
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | RUSTUP_HOME=/tmp/rustup HOME=/tmp sh -s -- -y
 export PATH="/tmp/.cargo/bin:$PATH"
 export RUSTUP_HOME=/tmp/rustup
 export CARGO_HOME=/tmp/.cargo
 
-# Install nightly toolchain
 rustup toolchain install nightly
 rustup default nightly
 
-# Verify installations
 echo "Verifying installations..."
 which mdbook
 which mdbook-template
 rustc --version
 
-# Navigate to book directory and build the book
 echo "Building the book..."
 cd "${REPO_ROOT}/book"
 mdbook build
 
-# Build the Rust docs
 echo "Building Rust documentation..."
 cd "${REPO_ROOT}"
 export RUSTDOCFLAGS="--cfg docsrs --show-type-layout --generate-link-to-definition --enable-index-page -Zunstable-options"
